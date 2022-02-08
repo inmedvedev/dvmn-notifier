@@ -17,11 +17,6 @@ def request_for_events(headers, params, timeout=100):
         return raw_response
 
 
-def send_notification(token, chat_id, message):
-    bot = telegram.Bot(token=token)
-    bot.send_message(text=message, chat_id=chat_id, parse_mode='MarkdownV2')
-
-
 def get_feedback_message(raw_response):
     attempt = raw_response['new_attempts'][0]
     lesson_title = attempt['lesson_title']
@@ -44,6 +39,7 @@ if __name__ == '__main__':
     env = Env()
     env.read_env()
     telegram_token = env.str('TELEGRAM_TOKEN')
+    bot = telegram.Bot(token=telegram_token)
     chat_id = env.str('TG_CHAT_ID')
     headers = {'Authorization': env.str('DVMN_TOKEN')}
     params = {}
@@ -54,4 +50,4 @@ if __name__ == '__main__':
             time.sleep(5)
             continue
         if event:
-            send_notification(telegram_token, chat_id, get_feedback_message(event))
+            bot.send_message(text=get_feedback_message(event), chat_id=chat_id, parse_mode='MarkdownV2')
