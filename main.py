@@ -6,9 +6,7 @@ from environs import Env
 
 def request_for_events(headers, params, timeout=100):
     response = requests.get('https://dvmn.org/api/long_polling/', headers=headers, params=params, timeout=timeout)
-    print(response.url)
     raw_response = response.json()
-    print(raw_response)
     if raw_response['status'] == 'timeout':
         params['timestamp'] = raw_response['timestamp_to_request']
     elif raw_response['status'] == 'found':
@@ -44,7 +42,6 @@ if __name__ == '__main__':
         try:
             event = request_for_events(headers, params)
         except (ReadTimeout, ConnectionError) as error:
-            print(error)
             continue
         if event:
             send_notification(telegram_token, chat_id, get_feedback_message(event))
