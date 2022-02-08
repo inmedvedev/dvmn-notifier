@@ -9,9 +9,7 @@ import textwrap
 def request_for_events(headers, params, timeout=100):
     response = requests.get('https://dvmn.org/api/long_polling/', headers=headers, params=params, timeout=timeout)
     response.raise_for_status()
-    raw_response = response.json()
-    if raw_response['status'] == 'found':
-        return raw_response
+    return response.json()
 
 
 def get_feedback_message(raw_response):
@@ -48,9 +46,8 @@ if __name__ == '__main__':
             continue
         except ReadTimeout:
             continue
-        if event:
-            if event['status'] == 'timeout':
-                params['timestamp'] = event['timestamp_to_request']
-            elif event['status'] == 'found':
-                params['timestamp'] = event['last_attempt_timestamp']
+        if event['status'] == 'found':
             bot.send_message(text=get_feedback_message(event), chat_id=chat_id, parse_mode='MarkdownV2')
+            params['timestamp'] = event['last_attempt_timestamp']
+        elif event['status'] == 'timeout':
+            params['timestamp'] = event['timestamp_to_request']
