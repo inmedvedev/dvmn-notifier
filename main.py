@@ -43,8 +43,10 @@ if __name__ == '__main__':
     while True:
         try:
             event = request_for_events(headers, params)
-        except (ReadTimeout, ConnectionError) as error:
+        except ConnectionError as error:
             time.sleep(5)
+            continue
+        except ReadTimeout:
             continue
         if event:
             if event['status'] == 'timeout':
