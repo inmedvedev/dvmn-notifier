@@ -36,8 +36,8 @@ def get_feedback_message(raw_response):
 if __name__ == '__main__':
     env = Env()
     env.read_env()
-    telegram_token = env.str('TG_TOKEN')
-    chat_id = env.str('CHAT_ID')
+    telegram_token = env.str('TELEGRAM_TOKEN')
+    chat_id = env.str('TG_CHAT_ID')
     headers = {'Authorization': env.str('DVMN_TOKEN')}
     params = {}
     while True:

@@ -22,8 +22,8 @@ $ pip install -r requirements.txt
 ```
 4. Задайте переменные окружения в файле .env
 - `DVMN_TOKEN`=токен для работы с API Devman. [DVMN's API](https://dvmn.org/api/docs/)
-- `TG_TOKEN`=токен вашего телеграм бота. [Как получить токен бота](https://tlgrm.ru/docs/bots)
-- `CHAT_ID`=Ваш чат ID в телеграм. Чтобы его узнать, отправьте сообщение @userinfobot
+- `TELEGRAM_TOKEN`=токен вашего телеграм бота. [Как получить токен бота](https://tlgrm.ru/docs/bots)
+- `TG_CHAT_ID`=Ваш чат ID в телеграм. Чтобы его узнать, отправьте сообщение @userinfobot
 5. Запуск приложения
 ```
 $ python main.py
