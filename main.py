@@ -10,10 +10,7 @@ def request_for_events(headers, params, timeout=100):
     response = requests.get('https://dvmn.org/api/long_polling/', headers=headers, params=params, timeout=timeout)
     response.raise_for_status()
     raw_response = response.json()
-    if raw_response['status'] == 'timeout':
-        params['timestamp'] = raw_response['timestamp_to_request']
-    elif raw_response['status'] == 'found':
-        params['timestamp'] = raw_response['last_attempt_timestamp']
+    if raw_response['status'] == 'found':
         return raw_response
 
 
@@ -50,4 +47,8 @@ if __name__ == '__main__':
             time.sleep(5)
             continue
         if event:
+            if event['status'] == 'timeout':
+                params['timestamp'] = event['timestamp_to_request']
+            elif event['status'] == 'found':
+                params['timestamp'] = event['last_attempt_timestamp']
             bot.send_message(text=get_feedback_message(event), chat_id=chat_id, parse_mode='MarkdownV2')
