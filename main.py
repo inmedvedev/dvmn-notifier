@@ -2,6 +2,8 @@ import requests
 from requests.exceptions import ReadTimeout, ConnectionError
 import telegram
 from environs import Env
+import time
+import textwrap
 
 
 def request_for_events(headers, params, timeout=100):
@@ -26,10 +28,16 @@ def get_feedback_message(raw_response):
     lesson_url = attempt['lesson_url']
     is_negative = attempt['is_negative']
     if is_negative:
-        return f'У вас проверили работу «[{lesson_title}]({lesson_url})»\n\n' \
-               f'К сожалению\, в работе нашлись ошибки\.'
-    return f'У вас проверили работу «[{lesson_title}]({lesson_url})»\n\n' \
-           f'Преподавателю все понравилось\, можно приступать к следущему уроку\!'
+        return textwrap.dedent(
+            f'''\
+            У вас проверили работу «[{lesson_title}]({lesson_url})»\n
+            К сожалению\, в работе нашлись ошибки\.'''
+        )
+    return textwrap.dedent(
+        f'''\
+        У вас проверили работу «[{lesson_title}]({lesson_url})»\n
+        Преподавателю все понравилось\, можно приступать к следущему уроку\!'''
+    )
 
 
 if __name__ == '__main__':
@@ -43,6 +51,7 @@ if __name__ == '__main__':
         try:
             event = request_for_events(headers, params)
         except (ReadTimeout, ConnectionError) as error:
+            time.sleep(5)
             continue
         if event:
             send_notification(telegram_token, chat_id, get_feedback_message(event))
