@@ -6,7 +6,17 @@ import time
 import textwrap
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+
+class TelegramLogsHandler(logging.Handler):
+
+    def __init__(self, tg_bot, chat_id):
+        super().__init__()
+        self.chat_id = chat_id
+        self.tg_bot = tg_bot
+
+    def emit(self, record):
+        log_entry = self.format(record)
+        self.tg_bot.send_message(chat_id=self.chat_id, text=log_entry)
 
 
 def request_for_events(headers, params, timeout=100):
@@ -36,10 +46,13 @@ def get_feedback_message(raw_response):
 if __name__ == '__main__':
     env = Env()
     env.read_env()
-    telegram_token = env.str('TELEGRAM_TOKEN')
-    bot = telegram.Bot(token=telegram_token)
-    logging.info('Бот запущен')
+    logger = logging.getLogger('bot')
+    logger.setLevel(logging.INFO)
     chat_id = env.str('TG_CHAT_ID')
+    tg_token = env.str('TELEGRAM_TOKEN')
+    bot = telegram.Bot(token=tg_token)
+    logger.addHandler(TelegramLogsHandler(bot, chat_id))
+    logger.info('Бот запущен')
     headers = {'Authorization': env.str('DVMN_TOKEN')}
     params = {}
     while True:
