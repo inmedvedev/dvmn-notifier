@@ -4,6 +4,9 @@ import telegram
 from environs import Env
 import time
 import textwrap
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 def request_for_events(headers, params, timeout=100):
@@ -35,6 +38,7 @@ if __name__ == '__main__':
     env.read_env()
     telegram_token = env.str('TELEGRAM_TOKEN')
     bot = telegram.Bot(token=telegram_token)
+    logging.info('Бот запущен')
     chat_id = env.str('TG_CHAT_ID')
     headers = {'Authorization': env.str('DVMN_TOKEN')}
     params = {}
