@@ -46,25 +46,31 @@ def get_feedback_message(raw_response):
 if __name__ == '__main__':
     env = Env()
     env.read_env()
-    logger = logging.getLogger('bot')
-    logger.setLevel(logging.INFO)
     chat_id = env.str('TG_CHAT_ID')
     tg_token = env.str('TELEGRAM_TOKEN')
+    logger_tg_token = env.str('LOGGER_TELEGRAM_TOKEN')
     bot = telegram.Bot(token=tg_token)
-    logger.addHandler(TelegramLogsHandler(bot, chat_id))
+    logger_bot = telegram.Bot(token=logger_tg_token)
+    logger = logging.getLogger('bot')
+    logger.setLevel(logging.INFO)
+    logger.addHandler(TelegramLogsHandler(logger_bot, chat_id))
     logger.info('Бот запущен')
     headers = {'Authorization': env.str('DVMN_TOKEN')}
     params = {}
     while True:
         try:
             event = request_for_events(headers, params)
+            if event['status'] == 'found':
+                bot.send_message(text=get_feedback_message(event), chat_id=chat_id, parse_mode='MarkdownV2')
+                params['timestamp'] = event['last_attempt_timestamp']
+            elif event['status'] == 'timeout':
+                params['timestamp'] = event['timestamp_to_request']
         except ConnectionError as error:
             time.sleep(5)
             continue
         except ReadTimeout:
             continue
-        if event['status'] == 'found':
-            bot.send_message(text=get_feedback_message(event), chat_id=chat_id, parse_mode='MarkdownV2')
-            params['timestamp'] = event['last_attempt_timestamp']
-        elif event['status'] == 'timeout':
-            params['timestamp'] = event['timestamp_to_request']
+        except Exception as error:
+            logger.info('Бот упал с ошибкой:')
+            logger.exception(error)
+
