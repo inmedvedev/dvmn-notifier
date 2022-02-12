@@ -6,6 +6,8 @@ import time
 import textwrap
 import logging
 
+logger = logging.getLogger('bot')
+
 
 class TelegramLogsHandler(logging.Handler):
 
@@ -51,7 +53,6 @@ if __name__ == '__main__':
     logger_tg_token = env.str('LOGGER_TELEGRAM_TOKEN')
     bot = telegram.Bot(token=tg_token)
     logger_bot = telegram.Bot(token=logger_tg_token)
-    logger = logging.getLogger('bot')
     logger.setLevel(logging.INFO)
     logger.addHandler(TelegramLogsHandler(logger_bot, chat_id))
     logger.info('Бот запущен')
